@@ -1,0 +1,13 @@
+#chat {
+	float:right;
+	width: 200px;
+}
+
+#chat-container {
+	height: 80%;
+	overflow: auto;
+}
+
+#text-input {
+	width: 100%;
+}
