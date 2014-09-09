@@ -1,13 +1,64 @@
+body {
+	display: flex;
+	flex-direction: column;
+	color: #A0A0A0;
+	background-color: black;
+}
+
+div {
+	display: flex;
+	flex-direction: inherit;
+}
+
+input {
+	display: flex;
+}
+
+video {
+	display: flex;
+	width: 100%;
+	overflow: none;
+}
+
+#header {
+	flex-direction: row;
+}
+
+#share {
+	width:100%;
+}
+
+#content {
+	flex-direction: row;
+	max-height: 100%;
+}
+
 #chat {
-	float:right;
 	width: 200px;
+	flex-direction: column;
+}
+
+#chat > div {
+	display: block;
+	flex-grow: 1;
 }
 
 #chat-container {
-	height: 80%;
-	overflow: auto;
+	/*max-height: 100%;*/
+	overflow-y: auto;
+}
+#videoContainer {
+	flex-direction: column;
+	flex-grow: 1;
+}
+#videoPlayer {
+	flex-grow: 1;
 }
 
 #text-input {
 	width: 100%;
+}
+
+.vertical {
+	flex
 }

@@ -4,11 +4,11 @@ define(['jquery'],function($) {
 		var currentPing = null;
 		var currentPingId = -1;
 
-		control.register('ping', this, function(message) {
+		control.register('ping', function(message) {
 			control.send('pong', message);
 		});
 
-		control.register('pong', this, function(message) {
+		control.register('pong', function(message) {
 			if (currentPing && currentPing.state() == "pending" && currentPingId === message.id) {
 				currentPing.resolve(Date.now() - message.start);
 			}
@@ -41,7 +41,7 @@ define(['jquery'],function($) {
 		var pingHandler = null;
 
 		return {
-			register: function(msgType, listener, fct) {
+			register: function(msgType, fct) {
 				handlers[msgType] = fct;
 			},
 			unregister: function(msgType) {

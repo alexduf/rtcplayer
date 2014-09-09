@@ -6,15 +6,20 @@
 	<script data-main="scripts/main" src="scripts/require.js"></script>
 </head>
 <body>
-	<div><input id="share" type="text" /></div>
-	<div id="chat">
-		<div id="chat-container">
+	<div id="header"><input id="share" type="text" /></div>
+	<div id="content">
+		<div id="videoContainer">
+			<video id="videoPlayer" preload>
+				<source src="../big_buck_bunny_480p.webm" type="video/webm">
+			</video>
+			<button id="play" type="button">Play</button>
 		</div>
-		<input id="text-input" type="text" />
+		<div id="chat">
+			<div id="chat-container">
+			</div>
+			<input id="text-input" type="text" />
+		</div>
 	</div>
-	<video controls preload>
-		<source src="../big_buck_bunny_480p.webm" type="video/webm">
-	</video>
 </div>
 </body>
 </html>

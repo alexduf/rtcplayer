@@ -1,16 +1,30 @@
-define(['./discovery', 'jquery'], function(discovery, $) {
-	var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-	var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription;
+define(['./discovery', 'jquery', 'enums'], function(discovery, $, enums) {
+	var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+	var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription;
 
 	var openServerChannels = function openServerChannels(channels) {
+
 		// open the connection
-		var pc = new RTCPeerConnection();
+		var pc = new RTCPeerConnection(enums.rtcConfiguration, {});
+		var id = discovery.offerId(); // generate an id
+
+		$(document).trigger('roomId', id);
 
 		// initialize the promises
 		var promises = {};
 		channels.forEach(function(channelName) {
-			var dc = pc.createDataChannel(channelName);
 			promises[channelName] = new $.Deferred();
+		});
+
+		// if something fails, reject all the promises
+		var rejectAll = function(error) {
+			channels.forEach(function(channelName) {
+				promises[channelName].reject(error);
+			}); 
+		};
+
+		channels.forEach(function(channelName) {
+			var dc = pc.createDataChannel(channelName);
 			dc.onopen = function(e) {
 				promises[channelName].resolve(dc);
 			};
@@ -23,27 +37,18 @@ define(['./discovery', 'jquery'], function(discovery, $) {
 			}, 500);
 		});
 
-		// if something fails, reject all the promises
-		var rejectAll = function() {
-			channels.forEach(function(channelName) {
-				promises[channelName].reject();
-			}); 
-		};
-
-		// how to send the offer to the clien
+		// how to send the offer to the client
 		var sendOffer = function(offer) {
-			var id = discovery.offerId(); // generate an id
 			discovery.offer(id, offer).fail(rejectAll); // send the offer to the server (no need to  wait for completion)
 	    	pc.setLocalDescription(offer); // set the local description
 			console.log(offer); // log it
-			// the offer is ready (or soon to be), this event will inform listener of the room id
-			$(document).trigger('offer', id);
 
 			// waiting for an answer
 			discovery.getAnswer(id).done(function(serverAnswer) {
+				console.log('answer received');
 				var answer = new RTCSessionDescription(serverAnswer.msg);
 				pc.setRemoteDescription(answer);
-				console.log('okay !');
+				console.log('okay ! lets start');
 			}).fail(rejectAll);
 		};
 
@@ -53,12 +58,11 @@ define(['./discovery', 'jquery'], function(discovery, $) {
 	};
 
 	var openClientChannels = function openClientChannels(channels) {
+
 		// open the connection
-		var pc = new RTCPeerConnection();
-		// grab the id
-		var id = discovery.offerId();
-		// get the offer promise. Will be resolved as soon as data is received from server
-		var offer = discovery.getOffer(id);
+		var pc = new RTCPeerConnection(enums.rtcConfiguration, {});
+		var id = discovery.offerId(); // generate an id
+
 		// generate the promises
 		var promises = {};
 		channels.forEach(function(channelName) {
@@ -66,11 +70,16 @@ define(['./discovery', 'jquery'], function(discovery, $) {
 		});
 
 		// if error, reject all promises
-		var rejectAll = function() {
+		var rejectAll = function(error) {
+			console.error(error);
 			channels.forEach(function(channelName) {
-				promises[channelName].reject();
+				promises[channelName].reject(error);
 			});
 		};
+
+		// get the offer promise. Will be resolved as soon as data is received from server
+		var offerPromise = discovery.getOffer(id);
+
 
 		// when one datachannel is opened
 		pc.ondatachannel = function(channelEvent) {
@@ -85,27 +94,28 @@ define(['./discovery', 'jquery'], function(discovery, $) {
 		}
 
 		// when the offer is received
-		offer.done(function(serverOffer) {
+		offerPromise.done(function(serverOffer) {
+			console.log('offer received');
 			var offer = new RTCSessionDescription(serverOffer.msg);
 			pc.setRemoteDescription(offer);
 
 			// when the answer is generated, send it to the server
 			var sendAnswer = function(answer) {
+				console.log('sending answer');
 				discovery.answer(id, answer).fail(rejectAll);
 				pc.setLocalDescription(answer);
 				console.log(answer);
 			}
+			
 			// initiate an answer
 			pc.createAnswer(sendAnswer, rejectAll, {});
+			
 		});
 
 		return promises;
 	};
 	
-	//var pc = new RTCPeerConnection();
 	return {
-		RTCPeerConnection : RTCPeerConnection,
-		RTCSessionDescription : RTCSessionDescription,
 		openServerChannels: function (channels) {
 			return openServerChannels(channels);
 		},

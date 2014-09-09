@@ -44,6 +44,34 @@ define(['./cookies', 'jquery'], function(cookies, $) {
 		},
 		getAnswer: function getAnswer(answerId) {
 			return $.getJSON(url, {answerId: answerId, messageType:"answer"});
+		},
+		iceServer: function iceServer(iceServerId, iceServerMsg) {
+			var data = {
+				messageType: "iceServer",
+				iceServerId: iceServerId,
+				iceServer: JSON.stringify({
+					from: this.user(),
+					msg: iceServerMsg
+				})
+			};
+			return $.post(url, data);
+		},
+		getIceServer: function getIceServer(iceServerId) {
+			return $.getJSON(url, {iceServerId: iceServerId, messageType:"iceServer"});
+		},
+		iceClient: function iceClient(iceClientId, iceClientMsg) {
+			var data = {
+				messageType: "iceClient",
+				iceClientId: iceClientId,
+				iceClient: JSON.stringify({
+					from: this.user(),
+					msg: iceClientMsg
+				})
+			};
+			return $.post(url, data);
+		},
+		getIceClient: function getIceClient(iceClientId) {
+			return $.getJSON(url, {iceClientId: iceClientId, messageType:"iceClient"});
 		}
 	};
 });

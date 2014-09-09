@@ -5,7 +5,7 @@ if (isset($_GET["messageType"])) {
 	$messageType=$_POST["messageType"];
 }
 
-if ($messageType != "offer" && $messageType != "answer") {
+if ($messageType != "offer" && $messageType != "answer" && $messageType != "iceServer" && $messageType != "iceClient") {
 	echo $messageType;
 	die("operation not permited");
 }
