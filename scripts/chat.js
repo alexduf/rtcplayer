@@ -5,7 +5,20 @@ define(['jquery'], function($) {
 		var renderChatMessage = function renderChatMessage(user, message) {
 			var div = $('<div>').text('[' + user + ']: ' + message);
 			div.appendTo(container);
-		}
+			setTimeout(function() {
+				div.addClass('old');
+			}, 4000);
+			container.scrollTop(container.prop("scrollHeight") - container.height());
+		};
+
+		var logMessage = function logMessage(message) {
+			var div = $('<div class="log">').text(message);
+			div.appendTo(container);
+			setTimeout(function() {
+				div.addClass('old');
+			}, 4000);
+			container.scrollTop(container.prop("scrollHeight") - container.height());
+		};
 
 		textInput.on('keydown', function(e) {
 			if (e.keyCode === 13) {
@@ -17,7 +30,8 @@ define(['jquery'], function($) {
 		});
 
 		return {
-			renderChatMessage: renderChatMessage
+			renderChatMessage: renderChatMessage,
+			log: logMessage
 		}
 	};
 	return Chat;

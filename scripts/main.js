@@ -12,11 +12,13 @@ require([
 	'syncPlayer',
 	'discovery',
 	'rtc',
+	'async',
 	'enums'
-], function($, ChatModule, ControlModule, SyncPlayer, discovery, rtc, enums) {
+], function($, ChatModule, ControlModule, SyncPlayer, discovery, rtc, async, enums) {
 	// DOM objects
+	var chatPanel = $('#chat');
 	var chatContainer = $('#chat-container');
-	var textInput = $('#text-input');
+	var textInput = $('#chat-input');
 	var shareInput = $('#share');
 	var header = $('#header');
 	var playButton = $('#play');
@@ -44,10 +46,12 @@ require([
 	});
 
 	$(document).on('roomId', function(e, id) {
+		header.slideDown();
 		shareInput.val(window.location + '#' + id);
+		shareInput.focus().select();
 	});
 
-	playButton.on('click', function() {
+	$(videoPlayer).on('click', function() {
 		syncPlayer.play();
 	});
 
@@ -57,6 +61,10 @@ require([
 	} else {
 		channels = rtc.openClientChannels(channelList);
 	}
+
+	var channelPromises = channelList.map(function(channelName) {
+		return channels[channelName];
+	});
 
 	// channels init
 	channels[enums.channels.chat].done(function (dc) {
@@ -70,9 +78,23 @@ require([
 	channels[enums.channels.control].done(function(dc) {
 		control = new ControlModule(dc);
 		console.log(dc.readyState);
-		control.ping().done(function(ping) {console.log('latency : ' + ping)});
-		syncPlayer = new SyncPlayer(control, videoPlayer);
-		header.hide();
-		$('#ynhportal').hide();
 	});
+
+	// Channels are ready, let's init the app !
+	async.all(channelPromises).done(function() {
+		
+		// check the ping every minute
+		setInterval(function() {
+			control.ping().done(function(ping) {chat.log('Latency : ' + ping + ' ms')});
+		}, 60000);
+
+		syncPlayer = new SyncPlayer(control, videoPlayer);
+		header.slideUp();
+		chatPanel.show().addClass('ready');
+		$('#ynhportal').remove();
+		$('#ynhoverlay').remove();
+	})
+	
+	$('#ynhportal').remove();
+	$('#ynhoverlay').remove();
 });

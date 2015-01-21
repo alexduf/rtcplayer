@@ -1,4 +1,1 @@
--chat autoscroll
--time synchronization
--player sycnhronization
 -audio + video

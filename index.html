@@ -1,10 +1,24 @@
 <html>
 <head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<link rel="stylesheet" type="text/css" href="main.css">
+	<script data-main="scripts/main" src="scripts/require.js"></script>
 </head>
-<body style="background-color:black">
-	<video controls preload style="width:80%">
-		<source src="https://mabox.org/torrent/downloads/Peep%20Show/Peep%20Show%20-%2001x02%20-%20The%20Interview.webm" type="video/webm">
-	</video>
+<body>
+	<div id="header"><input id="share" type="text" /></div>
+	<div id="content">
+		<div id="videoContainer">
+			<video id="videoPlayer" preload>
+				<source src="../big_buck_bunny_480p.webm" type="video/webm">
+			</video>
+		</div>
+		<div id="chat">
+			<div id="chat-container">
+			</div>
+			<input id="chat-input" type="text" />
+		</div>
+	</div>
 </div>
 </body>
 </html>
